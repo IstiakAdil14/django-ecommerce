@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card mt-5">
+                <div class="card-header">
+                    <h3 class="text-center">Register</h3>
+                </div>
+                <div class="card-body">
+                    {% include 'includes/alerts.html' %}
+                    <form method="post" action="{% url 'accounts:register' %}" autocomplete="off">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.first_name.label_tag }}
+                                    {{ form.first_name }}
+                                    {% if form.first_name.errors %}
+                                        <div class="text-danger">
+                                            {{ form.first_name.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.last_name.label_tag }}
+                                    {{ form.last_name }}
+                                    {% if form.last_name.errors %}
+                                        <div class="text-danger">
+                                            {{ form.last_name.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            {{ form.phone_number.label_tag }}
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">+880</span>
+                                </div>
+                                {{ form.phone_number }}
+                            </div>
+                            {% if form.phone_number.errors %}
+                                <div class="text-danger">
+                                    {{ form.phone_number.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            {{ form.email.label_tag }}
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                                <div class="text-danger">
+                                    {{ form.email.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            {{ form.password.label_tag }}
+                            {{ form.password }}
+                            {% if form.password.errors %}
+                                <div class="text-danger">
+                                    {{ form.password.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="confirm_password">Confirm Password</label>
+                            <input type="password" name="confirm_password" class="form-control" id="confirm_password" placeholder="Confirm your password" required>
+                            {% if form.non_field_errors %}
+                                <div class="text-danger">
+                                    {{ form.non_field_errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Register</button>
+                    </form>
+                    <div id="validation-errors" class="text-danger mt-3"></div>
+                    <div class="text-center mt-3">
+                        <p>Already have an account? <a href="{% url 'accounts:login' %}">Login here</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Validation functions
+    function validateName(name) {
+        // First letter of each word should be uppercase, allow letters, spaces, hyphens, apostrophes
+        const nameRegex = /^[A-Z][a-z]*(?: [A-Z][a-z]*)*(?:-[A-Z][a-z]*)*(?:'[A-Z][a-z]*)*$/;
+        return nameRegex.test(name.trim()) && name.trim().length >= 2 && name.trim().length <= 50;
+    }
+
+    function validatePhoneNumber(phone) {
+        // Should be exactly 11 digits starting with operator code (without leading 0)
+        // Bangladeshi operators: GP (17, 13), Robi (18), Airtel (16), Banglalink (19, 14), Teletalk (15)
+        const phoneRegex = /^(17|13|18|16|19|14|15)\d{8}$/;
+        return phoneRegex.test(phone.replace(/\s/g, '')) && phone.replace(/\s/g, '').length === 10;
+    }
+
+    function validateEmail(email) {
+        // Strong email regex: RFC 5322 compliant, but simplified for frontend
+        const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+        return emailRegex.test(email) && email.length <= 254;
+    }
+
+    function validatePassword(password) {
+        // Strong password: at least 12 characters, 1 uppercase, 1 lowercase, 1 number, 1 special character, no common words
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        const commonWords = ['password', '123456', 'qwerty', 'admin', 'user'];
+        return passwordRegex.test(password) && !commonWords.some(word => password.toLowerCase().includes(word));
+    }
+
+    // Form submission validation
+    document.querySelector('form').addEventListener('submit', function(e) {
+        let isValid = true;
+        let errorMessages = [];
+
+        // Get form fields
+        const firstName = document.getElementById('id_first_name').value;
+        const lastName = document.getElementById('id_last_name').value;
+        const phoneNumber = document.getElementById('id_phone_number').value;
+        const email = document.getElementById('id_email').value;
+        const password = document.getElementById('id_password').value;
+        const confirmPassword = document.getElementById('confirm_password').value;
+
+        // Validate first name
+        if (!validateName(firstName)) {
+            isValid = false;
+            errorMessages.push('First name must start with an uppercase letter and contain only letters.');
+        } else {
+            console.log('First name validation passed');
+        }
+
+        // Validate last name
+        if (!validateName(lastName)) {
+            isValid = false;
+            errorMessages.push('Last name must start with an uppercase letter and contain only letters.');
+        } else {
+            console.log('Last name validation passed');
+        }
+
+        // Validate phone number
+        if (!validatePhoneNumber(phoneNumber)) {
+            isValid = false;
+            errorMessages.push('Phone number must be 10 digits starting with a valid Bangladeshi operator code (e.g., 1712345678).');
+        } else {
+            console.log('Phone validation passed');
+        }
+
+        // Validate email
+        if (!validateEmail(email)) {
+            isValid = false;
+            errorMessages.push('Please enter a valid email address.');
+        } else {
+            console.log('Email validation passed');
+        }
+
+        // Validate password
+        if (!validatePassword(password)) {
+            isValid = false;
+            errorMessages.push('Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character. Common words are not allowed.');
+        } else {
+            console.log('Password validation passed');
+        }
+
+        // Validate password confirmation
+        if (password !== confirmPassword) {
+            isValid = false;
+            errorMessages.push('Passwords do not match!');
+        }
+
+        if (!isValid) {
+            e.preventDefault();
+            const errorDiv = document.getElementById('validation-errors');
+            errorDiv.innerHTML = '<ul>' + errorMessages.map(msg => '<li>' + msg + '</li>').join('') + '</ul>';
+        } else {
+            // Clear errors if valid
+            document.getElementById('validation-errors').innerHTML = '';
+        }
+    });
+
+
+</script>
+{% endblock %}

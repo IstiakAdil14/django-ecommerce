@@ -1,0 +1,66 @@
+/* Custom styles for checkout shipping form */
+.shipping-address-form .form-control {
+    width: 100% !important;
+    padding: 8px 12px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    display: block;
+}
+
+.shipping-address-form .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.shipping-address-form .col-md-6,
+.shipping-address-form .col-md-4,
+.shipping-address-form .col-md-12 {
+    flex: 1 1 auto;
+    min-width: 150px;
+}
+
+.shipping-address-form .card {
+    padding: 15px;
+    border-radius: 6px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    background-color: #fff;
+    margin-bottom: 20px;
+}
+
+/* Ensure form fields have consistent height */
+.shipping-address-form input.form-control,
+.shipping-address-form textarea.form-control {
+    height: 38px;
+}
+
+/* Style the card header */
+.shipping-address-form .card-header {
+    font-weight: bold;
+    font-size: 1.25rem;
+    padding-bottom: 10px;
+}
+
+/* Notification styles */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 20px;
+    border-radius: 5px;
+    color: #fff;
+    font-weight: bold;
+    z-index: 1000;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.notification.success {
+    background-color: #28a745;
+}
+
+.notification.error {
+    background-color: #dc3545;
+}
