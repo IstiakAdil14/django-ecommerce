@@ -1,0 +1,16 @@
+/* Fix footer at bottom for cart page */
+footer.section-footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  z-index: 1000;
+  background-color: white; /* Ensure background covers content behind */
+  border-top: 1px solid #dee2e6; /* Add border for separation */
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+/* Add padding-bottom to container in cart page to avoid content hidden behind footer */
+section.section-content {
+  padding-bottom: 80px; /* Approximate height of footer */
+}

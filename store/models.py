@@ -20,6 +20,12 @@ class Product(models.Model):
     created_date = models.DateTimeField(auto_now_add=True)
     modified_date = models.DateTimeField(auto_now=True)
 
+    def clean(self):
+        from django.core.exceptions import ValidationError
+
+        if self.price < 0:
+            raise ValidationError({"price": "Price cannot be negative."})
+
     def get_url(self):
         return reverse("product_detail_slug", args=[self.category.slug, self.slug])
 

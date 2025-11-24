@@ -54,10 +54,22 @@ def store(request, category_slug=None):
         ).distinct()
 
     # Filter by price
-    if min_price:
-        products = products.filter(price__gte=min_price)
-    if max_price:
-        products = products.filter(price__lte=max_price)
+
+    # Validate and clamp min_price and max_price to be non-negative integers
+    def clamp_price(value):
+        try:
+            value_int = int(value)
+            return max(0, value_int)
+        except (ValueError, TypeError):
+            return None
+
+    min_price_safe = clamp_price(min_price)
+    max_price_safe = clamp_price(max_price)
+
+    if min_price_safe is not None:
+        products = products.filter(price__gte=min_price_safe)
+    if max_price_safe is not None:
+        products = products.filter(price__lte=max_price_safe)
 
     # Pagination
     paginator = Paginator(products, 3)
@@ -112,39 +124,6 @@ def product_detail(request, category_slug, product_slug):
             order__user=request.user, product_id=single_product.id, ordered=True
         ).exists()
 
-    # Review sorting parameter
-    sort = request.GET.get("sort", "newest")
-
-    reviews_qs = (
-        ReviewRating.objects.filter(product_id=single_product.id, status="visible")
-        .select_related("user")
-        .prefetch_related("media", "helpfulness_votes")
-    )
-
-    # Apply sorting
-    if sort == "newest":
-        reviews_qs = reviews_qs.order_by("-created_at")
-    elif sort == "highest":
-        reviews_qs = reviews_qs.order_by("-rating", "-created_at")
-    elif sort == "lowest":
-        reviews_qs = reviews_qs.order_by("rating", "-created_at")
-    elif sort == "most_helpful":
-        reviews_qs = reviews_qs.order_by("-helpful_votes", "-created_at")
-    else:
-        reviews_qs = reviews_qs.order_by("-created_at")
-
-    # Pagination
-    paginator = Paginator(reviews_qs, 5)  # Show 5 reviews per page
-    page_number = request.GET.get("page")
-    reviews_page = paginator.get_page(page_number)
-
-    # Calculate review statistics
-    total_reviews = reviews_qs.count()
-    verified_reviews_count = reviews_qs.filter(is_verified_purchase=True).count()
-    percent_verified = 0
-    if total_reviews > 0:
-        percent_verified = int((verified_reviews_count / total_reviews) * 100)
-
     # Get the product gallery
     product_gallery = ProductGallery.objects.filter(product_id=single_product.id)
 
@@ -156,24 +135,13 @@ def product_detail(request, category_slug, product_slug):
         variation_category="size", is_active=True
     )
 
-    existing_review = None
-    if request.user.is_authenticated:
-        existing_review = ReviewRating.objects.filter(
-            product_id=single_product.id, user=request.user
-        ).first()
     context = {
         "single_product": single_product,
         "in_cart": in_cart,
         "has_purchased": has_purchased,
-        "reviews": reviews_page,
         "product_gallery": product_gallery,
         "colors": colors,
         "sizes": sizes,
-        "sort": sort,
-        "total_reviews": total_reviews,
-        "percent_verified": percent_verified,
-        "page_obj": reviews_page,
-        "existing_review": existing_review,
     }
     return render(request, "store/product_detail.html", context)
 

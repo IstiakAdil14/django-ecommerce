@@ -5,7 +5,7 @@ from django.utils.html import format_html
 
 # Register your models here.
 
-admin.site.site_header = "Administration"
+admin.site.site_header = "Admin Dashboard"
 
 
 class AccountAdmin(UserAdmin):

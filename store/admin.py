@@ -202,8 +202,8 @@ class ModerationQueueAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Product, ProductAdmin)
-admin.site.register(ReviewRating, ReviewRatingAdmin)
-admin.site.register(ReviewAudit, ReviewAuditAdmin)
-admin.site.register(ReviewHelpfulness, ReviewHelpfulnessAdmin)
-admin.site.register(ReviewMedia, ReviewMediaAdmin)
+# admin.site.register(ReviewRating, ReviewRatingAdmin)
+# admin.site.register(ReviewAudit, ReviewAuditAdmin)
+# admin.site.register(ReviewHelpfulness, ReviewHelpfulnessAdmin)
+# admin.site.register(ReviewMedia, ReviewMediaAdmin)
 # admin.site.register(ReviewRating, ModerationQueueAdmin)  # Commented out to avoid duplicate registration

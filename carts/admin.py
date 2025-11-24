@@ -76,6 +76,15 @@ class OrderAdmin(admin.ModelAdmin):
     search_fields = ("order_number", "first_name", "last_name", "email")
     inlines = [OrderStatusUpdateInline]
 
+    def get_readonly_fields(self, request, obj=None):
+        all_fields = [
+            field.name
+            for field in self.model._meta.get_fields()
+            if not field.auto_created
+        ]
+        readonly_fields = [field for field in all_fields if field != "status"]
+        return readonly_fields
+
     def save_model(self, request, obj, form, change):
         if change and "status" in form.changed_data:
             # Create status update record
@@ -116,7 +125,12 @@ Phone: {obj.phone}
 
 Email: {obj.email}
 """
-            send_email_via_nodemailer(to_email=obj.email, subject=subject, html_content=None, text_content=message)
+            send_email_via_nodemailer(
+                to_email=obj.email,
+                subject=subject,
+                html_content=None,
+                text_content=message,
+            )
         super().save_model(request, obj, form, change)
 
 
@@ -124,4 +138,4 @@ admin.site.register(Cart)
 admin.site.register(CartItem)
 admin.site.register(Order, OrderAdmin)
 admin.site.register(OrderItem)
-admin.site.register(OrderStatusUpdate)
+# admin.site.register(OrderStatusUpdate)
