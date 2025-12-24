@@ -129,7 +129,7 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 # Collectstatic will write files into STATIC_ROOT during build/deploy.
-# Use a folder name that is not used as an app static dir to avoid conflicts.
+# Use a folder name that is not used as an app static dir to avoid conflicts on deploy.
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Keep your app-level static folders here so collectstatic picks them up.
