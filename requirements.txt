@@ -1,7 +1,6 @@
 asgiref==3.9.1
 charset-normalizer==3.4.3
 Django==5.2.6
-idna==3.11
 Pillow==11.3.0
 pytz==2024.2
 requests==2.32.5
