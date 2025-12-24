@@ -45,6 +45,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # <<== ADDED: serve static files with WhiteNoise
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -127,10 +128,17 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = "/static/"
-STATIC_ROOT = BASE_DIR / "static"
+# Collectstatic will write files into STATIC_ROOT during build/deploy.
+# Use a folder name that is not used as an app static dir to avoid conflicts.
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# Keep your app-level static folders here so collectstatic picks them up.
 STATICFILES_DIRS = [
-    BASE_DIR / "ecommerce/static",
+    BASE_DIR / "ecommerce" / "static",
 ]
+
+# Use WhiteNoise's compressed manifest storage for caching (recommended).
+# NOTE: If you use this storage, make sure all static references use {% static %} in templates.
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Media files (User uploaded files)
