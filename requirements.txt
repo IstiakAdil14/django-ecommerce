@@ -1,5 +1,4 @@
-﻿asgiref==3.9.1
-certifi==2024.12.14
+asgiref==3.9.1
 charset-normalizer==3.4.3
 Django==5.2.6
 idna==3.11
@@ -14,6 +13,4 @@ sslcommerz-python==0.0.7
 minio==7.2.7
 django-storages==1.14.4
 whitenoise==6.5.0
-
-
-
+gunicorn
