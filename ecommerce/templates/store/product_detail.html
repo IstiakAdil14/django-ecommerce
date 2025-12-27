@@ -12,9 +12,11 @@
           <article class="gallery-wrap">
 
             <div class="thumb d-flex gap-2 mt-2">
-              <a href="{{ single_product.images.url }}" data-large><img src="{{ single_product.images.url }}" alt="Thumbnail" loading="lazy" class="thumb-img"></a>
+              <a href="{{ single_product.images.url }}" data-large><img src="{{ single_product.images.url }}"
+                  alt="Thumbnail" loading="lazy" class="thumb-img" style="max-width: 500px; max-height: 460px;"></a>
               {% for i in product_gallery %}
-              <a href="{{ i.image.url }}" data-large><img src="{{ i.image.url }}" alt="Product Image" loading="lazy" class="thumb-img"></a>
+              <a href="{{ i.image.url }}" data-large><img src="{{ i.image.url }}" alt="Product Image" loading="lazy"
+                  class="thumb-img" style="max-width: 300px; max-height: 300px;"></a>
               {% endfor %}
             </div>
           </article>
@@ -30,21 +32,21 @@
                 <div class="rating-star me-3" aria-hidden="true">
                   {% comment %} compact star rendering using averageReview {% endcomment %}
                   {% for i in "12345" %}
-                    {% with idx=forloop.counter %}
-                      {% if single_product.averageReview >= idx %}
-                        <i class="fa fa-star" aria-hidden="true"></i>
-                      {% elif single_product.averageReview >= idx|add:"-0.5" %}
-                        <i class="fa fa-star-half-o" aria-hidden="true"></i>
-                      {% else %}
-                        <i class="fa fa-star-o" aria-hidden="true"></i>
-                      {% endif %}
-                    {% endwith %}
+                  {% with idx=forloop.counter %}
+                  {% if single_product.averageReview >= idx %}
+                  <i class="fa fa-star" aria-hidden="true"></i>
+                  {% elif single_product.averageReview >= idx|add:"-0.5" %}
+                  <i class="fa fa-star-half-o" aria-hidden="true"></i>
+                  {% else %}
+                  <i class="fa fa-star-o" aria-hidden="true"></i>
+                  {% endif %}
+                  {% endwith %}
                   {% endfor %}
                 </div>
                 <div>
-                <span id="reviewCount" class="small text-muted">{{ total_reviews }} reviews</span>
-                <span class="small text-muted ms-2">{{ percent_verified }}% verified buyers</span>
-              </div>
+                  <span id="reviewCount" class="small text-muted">{{ total_reviews }} reviews</span>
+                  <span class="small text-muted ms-2">{{ percent_verified }}% verified buyers</span>
+                </div>
               </div>
 
               <div class="mb-3">
@@ -60,7 +62,7 @@
                 <select id="select-color" name="color" class="form-control" required>
                   <option value="" disabled selected>Select</option>
                   {% for color in colors %}
-                    <option value="{{ color.variation_value|lower }}">{{ color.variation_value|capfirst }}</option>
+                  <option value="{{ color.variation_value|lower }}">{{ color.variation_value|capfirst }}</option>
                   {% endfor %}
                 </select>
               </div>
@@ -72,20 +74,20 @@
                 <select id="select-size" name="size" class="form-control" required>
                   <option value="" disabled selected>Select</option>
                   {% for size in sizes %}
-                    <option value="{{ size.variation_value|lower }}">{{ size.variation_value|capfirst }}</option>
+                  <option value="{{ size.variation_value|lower }}">{{ size.variation_value|capfirst }}</option>
                   {% endfor %}
                 </select>
               </div>
               {% endif %}
 
               <hr>
-              {% if single_product.stock <= 0 %}
-                <h5 class="text-danger">Out of Stock</h5>
-              {% else %}
-                <button type="submit" class="btn btn-primary" id="add-to-cart-btn" data-product-id="{{ single_product.id }}">
+              {% if single_product.stock <= 0 %} <h5 class="text-danger">Out of Stock</h5>
+                {% else %}
+                <button type="submit" class="btn btn-primary" id="add-to-cart-btn"
+                  data-product-id="{{ single_product.id }}">
                   <span class="text">Add to Cart</span> <i class="fa fa-shopping-cart"></i>
                 </button>
-              {% endif %}
+                {% endif %}
             </article>
           </form>
         </main>
