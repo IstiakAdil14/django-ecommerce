@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     "store",
     "carts",
     "storages",
+    "cloudinary_storage",
+    "cloudinary",
 ]
 
 MIDDLEWARE = [
@@ -160,10 +162,25 @@ STATIC_ROOT = BASE_DIR /'staticfiles'
 #     'greatkart/static',
 # ]
 
-# MinIO Configuration (Production only)
-USE_MINIO = config("USE_MINIO", default=False, cast=bool)
+# Cloudinary Configuration (For Render deployment)
+USE_CLOUDINARY = True  # Set to True for production
 
-if USE_MINIO:
+if USE_CLOUDINARY:
+    import cloudinary
+    cloudinary.config(
+        cloud_name='Istiak Adil',
+        api_key='826254745148537',
+        api_secret='FYz9fYz2fMIFshtXUQ7wXTJ5QQU',
+    )
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+    # Static files remain local or as configured
+    STATIC_URL = "/static/"
+    STATIC_ROOT = BASE_DIR / "static"
+    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+# MinIO Configuration (Production only, if not using Cloudinary)
+elif config("USE_MINIO", default=False, cast=bool):
+    USE_MINIO = True
     MINIO_ENDPOINT = config("MINIO_ENDPOINT", default="localhost:9000")
     MINIO_ACCESS_KEY = config("MINIO_ACCESS_KEY", default="minioadmin")
     MINIO_SECRET_KEY = config("MINIO_SECRET_KEY", default="minioadmin")
