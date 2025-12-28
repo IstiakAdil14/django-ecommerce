@@ -19,11 +19,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY
 # -----------------------------------------------------------------------------------
 
+# Fixed: Using "SECRET_KEY" as the env var name, with the user's key as default
 SECRET_KEY = config("SECRET_KEY", default="FYz9fYz2fMIFshtXUQ7wXTJ5QQU")
 DEBUG = config("DEBUG", default=True, cast=bool)
 
 ALLOWED_HOSTS = ["*"]
-
 
 
 # -----------------------------------------------------------------------------------
@@ -99,17 +99,20 @@ else:
 # -----------------------------------------------------------------------------------
 
 # === CLOUDINARY for user-uploaded images ===
-CLOUDINARY_URL = config("CLOUDINARY_URL", default=None)
+# Fixed: Using "CLOUDINARY_URL" as env var name. 
+# Added default from your input, removing the <> placeholders which would cause errors.
+CLOUDINARY_URL = config("CLOUDINARY_URL", default="cloudinary://826254745148537:FYz9fYz2fMIFshtXUQ7wXTJ5QQU@dc6yqjtm9")
 
 if CLOUDINARY_URL:
     # CLOUDINARY_URL is handled automatically by the library if set in env
     pass
 
 # Configure django-cloudinary-storage
+# Fixed: Keys should be env var names, values provided as defaults
 CLOUDINARY_STORAGE = {
-    "CLOUD_NAME": config("CLOUDINARY_CLOUD_NAME", default=""),
-    "API_KEY": config("CLOUDINARY_API_KEY", default=""),
-    "API_SECRET": config("CLOUDINARY_API_SECRET", default=""),
+    "CLOUD_NAME": config("CLOUDINARY_CLOUD_NAME", default="dc6yqjtm9"),
+    "API_KEY": config("CLOUDINARY_API_KEY", default="826254745148537"),
+    "API_SECRET": config("CLOUDINARY_API_SECRET", default="FYz9fYz2fMIFshtXUQ7wXTJ5QQU"),
 }
 
 DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
