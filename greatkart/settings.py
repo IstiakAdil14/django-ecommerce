@@ -3,10 +3,10 @@ Cleaned Settings for Greatkart Project
 Suitable for: Render / Railway / PythonAnywhere
 Cloudinary for media & WhiteNoise for static
 """
-
+from decouple import config
 from pathlib import Path
 import os
-from decouple import config
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -19,7 +19,7 @@ SECRET_KEY = "FYz9fYz2fMIFshtXUQ7wXTJ5QQU"
 DEBUG = True  # set True only locally
 
 ALLOWED_HOSTS = [
-    "*",  # allow all hosts — optional, replace when domain fixed
+    ALLOWED_HOSTS = ['greatkart-ecommerce-zo01.onrender.com', 'localhost', '127.0.0.1']
 ]
 
 
