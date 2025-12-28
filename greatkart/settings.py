@@ -7,6 +7,10 @@ Cloudinary for media & WhiteNoise for static
 from pathlib import Path
 import os
 from decouple import config
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -15,8 +19,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY
 # -----------------------------------------------------------------------------------
 
-SECRET_KEY = "FYz9fYz2fMIFshtXUQ7wXTJ5QQU"
-DEBUG = True  # set True only locally
+SECRET_KEY = config("SECRET_KEY", default="FYz9fYz2fMIFshtXUQ7wXTJ5QQU")
+DEBUG = config("DEBUG", default=True, cast=bool)
 
 ALLOWED_HOSTS = ["*"]
 
@@ -80,9 +84,7 @@ WSGI_APPLICATION = "greatkart.wsgi.application"
 # DATABASE — works on local + Render/Railway/PythonAnywhere
 # -----------------------------------------------------------------------------------
 
-if os.environ.get("DATABASE_URL"):  # Render & Railway auto inject
-    import dj_database_url
-
+if os.environ.get("DATABASE_URL"):
     DATABASES = {"default": dj_database_url.config(default=os.environ["DATABASE_URL"])}
 else:
     DATABASES = {
@@ -98,18 +100,10 @@ else:
 # -----------------------------------------------------------------------------------
 
 # === CLOUDINARY for user-uploaded images ===
-import cloudinary
-import cloudinary.uploader
-import cloudinary.api
-
-# Configure Cloudinary using environment variables
 CLOUDINARY_URL = config("CLOUDINARY_URL", default=None)
 
 if CLOUDINARY_URL:
     # CLOUDINARY_URL is handled automatically by the library if set in env
-    # or we can manually set it if needed, but usually just having the env var is enough
-    # for the `cloudinary` library.
-    # However, django-cloudinary-storage uses its own config format.
     pass
 
 # Configure django-cloudinary-storage
@@ -144,13 +138,6 @@ LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
-
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.1/howto/static-files/
-
-
-# Removed duplicate static/media configuration block to avoid conflicts
 
 
 from django.contrib.messages import constants as messages
