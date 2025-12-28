@@ -18,9 +18,6 @@ from carts.views import _cart_id
 from carts.models import Cart, CartItem
 import requests
 import time
-import smtplib
-import json
-from email_utils import send_email_via_nodemailer
 
 
 def register(request):
@@ -32,14 +29,6 @@ def register(request):
             phone_number = form.cleaned_data["phone_number"]
             email = form.cleaned_data["email"]
             password = form.cleaned_data["password"]
-
-            # Console log the form data
-            print("User Registration Form Data:")
-            print(f"First Name: {first_name}")
-            print(f"Last Name: {last_name}")
-            print(f"Phone Number: {phone_number}")
-            print(f"Email: {email}")
-            print(f"Password: {password}")
             username = email.split("@")[0]
             user = Account.objects.create_user(
                 first_name=first_name,
@@ -75,37 +64,23 @@ def register(request):
                 mail_subject, plain_message, to=[to_email]
             )
             send_email.attach_alternative(html_message, "text/html")
-
-            # Try sending email via nodemailer service first, fallback to Django if needed
-            email_sent = send_email_via_nodemailer(
-                to_email, mail_subject, html_message, plain_message
-            )
-
-            if not email_sent:
-                # Fallback to Django's email system with retry logic
-                max_retries = 3
-                retry_delay = 1  # Start with 1 second
+            try:
+                send_email.send()
+            except Exception as e:
+                # Retry mechanism with exponential backoff for Gmail rate limiting, matching order confirmation OTP logic
+                max_retries = 5
                 for attempt in range(max_retries):
                     try:
                         send_email.send()
-                        email_sent = True
-                        break  # Success, exit loop
-                    except smtplib.SMTPRecipientsRefused as e:
+                        break  # Success, exit retry loop
+                    except Exception as e:
                         if attempt < max_retries - 1:
-                            print(
-                                f"Email send failed (attempt {attempt + 1}/{max_retries}): {e}. Retrying in {retry_delay} seconds..."
-                            )
-                            time.sleep(retry_delay)
-                            retry_delay *= 2  # Exponential backoff
+                            wait_time = 10 * (2 ** attempt)  # Exponential backoff: 10s, 20s, 40s, 80s, 160s
+                            time.sleep(wait_time)
                         else:
-                            print(
-                                f"Email send failed after {max_retries} attempts: {e}. Proceeding with OTP verification."
-                            )
-                if not email_sent:
-                    messages.warning(
-                        request,
-                        "We encountered an issue sending the email. Please check your email later or use the resend OTP option.",
-                    )
+                            messages.error(request, f"Failed to send OTP email after {max_retries} attempts: {str(e)}. Please try again later.")
+                            return redirect("accounts:register")
+            time.sleep(10)  # Additional delay after successful send
 
             messages.success(
                 request,
@@ -251,7 +226,6 @@ def forgotPassword(request):
                 mail_subject, plain_message, to=[to_email]
             )
             send_email.attach_alternative(message, "text/html")
-
             send_email.send()
 
             messages.success(
@@ -317,24 +291,10 @@ def edit_profile(request):
             request.POST, request.FILES, instance=userprofile
         )
         if user_form.is_valid() and profile_form.is_valid():
-            try:
-                user_form.save()
-                profile_form.save()
-                messages.success(request, "Your profile has been updated.")
-                return redirect("accounts:edit_profile")
-            except Exception as e:
-                messages.error(request, f"Upload failed: {str(e)}. Please try again.")
-                return redirect("accounts:edit_profile")
-        else:
-            # Handle form validation errors
-            if not profile_form.is_valid():
-                for field, errors in profile_form.errors.items():
-                    for error in errors:
-                        messages.error(request, f"Profile {field}: {error}")
-            if not user_form.is_valid():
-                for field, errors in user_form.errors.items():
-                    for error in errors:
-                        messages.error(request, f"User {field}: {error}")
+            user_form.save()
+            profile_form.save()
+            messages.success(request, "Your profile has been updated.")
+            return redirect("accounts:edit_profile")
     else:
         user_form = UserForm(instance=request.user)
         profile_form = UserProfileForm(instance=userprofile)
@@ -441,37 +401,23 @@ def resend_otp(request):
                     mail_subject, plain_message, to=[to_email]
                 )
                 send_email.attach_alternative(html_message, "text/html")
-
-                # Try sending email via nodemailer service first, fallback to Django if needed
-                email_sent = send_email_via_nodemailer(
-                    to_email, mail_subject, html_message, plain_message
-                )
-
-                if not email_sent:
-                    # Fallback to Django's email system with retry logic
-                    max_retries = 3
-                    retry_delay = 1  # Start with 1 second
+                try:
+                    send_email.send()
+                except Exception as e:
+                    # Retry mechanism with exponential backoff for Gmail rate limiting, matching order confirmation OTP logic
+                    max_retries = 5
                     for attempt in range(max_retries):
                         try:
                             send_email.send()
-                            email_sent = True
-                            break  # Success, exit loop
-                        except smtplib.SMTPRecipientsRefused as e:
+                            break  # Success, exit retry loop
+                        except Exception as e:
                             if attempt < max_retries - 1:
-                                print(
-                                    f"Email send failed (attempt {attempt + 1}/{max_retries}): {e}. Retrying in {retry_delay} seconds..."
-                                )
-                                time.sleep(retry_delay)
-                                retry_delay *= 2  # Exponential backoff
+                                wait_time = 10 * (2 ** attempt)  # Exponential backoff: 10s, 20s, 40s, 80s, 160s
+                                time.sleep(wait_time)
                             else:
-                                print(
-                                    f"Email send failed after {max_retries} attempts: {e}. Proceeding with OTP verification."
-                                )
-                    if not email_sent:
-                        messages.warning(
-                            request,
-                            "We encountered an issue sending the email. Please check your email later or use the resend OTP option.",
-                        )
+                                messages.error(request, f"Failed to send OTP email after {max_retries} attempts: {str(e)}. Please try again later.")
+                                return redirect("accounts:verify_otp")
+                time.sleep(10)  # Additional delay after successful send
                 messages.success(
                     request, "A new OTP has been sent to your email address."
                 )
@@ -480,3 +426,16 @@ def resend_otp(request):
         else:
             messages.error(request, "Please provide an email address.")
     return redirect("accounts:verify_otp")
+
+
+@login_required(login_url="accounts:login")
+def delete_account(request):
+    if request.method == "POST":
+        user = request.user
+        # Delete the user account (this will cascade delete UserProfile due to on_delete=models.CASCADE)
+        user.delete()
+        messages.success(request, "Your account has been successfully deleted.")
+        return redirect("accounts:login")
+    else:
+        # If not POST, redirect to dashboard
+        return redirect("accounts:dashboard")

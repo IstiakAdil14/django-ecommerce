@@ -25,7 +25,7 @@ SECRET_KEY = "toc(hoqz8q(_&9#8bpxf^%%n2kw@=60^z_h1lgavt95=po8-8&"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['.onrender.com']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -136,10 +136,6 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [
     BASE_DIR / "ecommerce" / "static",
 ]
-
-# Use WhiteNoise's compressed manifest storage for caching (recommended).
-# NOTE: If you use this storage, make sure all static references use {% static %} in templates.
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Media files (User uploaded files)
 MEDIA_URL = "/media/"

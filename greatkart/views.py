@@ -4,7 +4,7 @@ from django.conf import settings
 
 
 def home(request):
-    products = Product.objects.all().filter(is_available=True).order_by("created_date")
+    products = Product.objects.filter(is_available=True).exclude(images='').order_by('-created_date')[:8]
 
     # Get the reviews
     reviews = None

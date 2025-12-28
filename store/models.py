@@ -50,6 +50,17 @@ class Product(models.Model):
             count = int(reviews["count"])
         return count
 
+    def get_image_url(self):
+        """
+        Returns the image URL. With CloudinaryStorage configured, 
+        this automatically returns Cloudinary CDN URLs.
+        Falls back to placeholder if no image is set.
+        """
+        if self.images and self.images.name:
+            # CloudinaryStorage automatically provides full URLs via .url
+            return self.images.url
+        return "https://via.placeholder.com/300x200?text=No+Image"
+
 
 class VariationManager(models.Manager):
     def colors(self):

@@ -9,7 +9,7 @@ from store.views import store as store_view
 from category.models import Category
 
 def home(request):
-    products = Product.objects.filter(is_available=True)[:8]  # Get first 8 available products for popular section
+    products = Product.objects.filter(is_available=True).order_by('-created_date')[:8]  # Get last 8 added products for popular section
     links = Category.objects.all()
     return render(request, "home.html", {'products': products, 'links': links})
 

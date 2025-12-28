@@ -26,4 +26,8 @@ urlpatterns = [
     path("store/", include("store.urls")),
     path("cart/", include("carts.urls")),
     path("accounts/", include("accounts.urls", namespace="accounts")),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]
+
+# Serve media files during development (for local files not yet migrated to Cloudinary)
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

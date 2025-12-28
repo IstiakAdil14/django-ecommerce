@@ -9,7 +9,7 @@ const PORT = 3001;
 // === Configure credentials directly here (no .env) ===
 // WARNING: keep these secret and never commit them to a public repo.
 const EMAIL_USER = "adilschronicle731@gmail.com"; // replace with your Gmail address
-const EMAIL_APP_PASSWORD = "vliu aprl qchq dmfm"; // replace with your Gmail App Password (required if 2FA enabled)
+const EMAIL_APP_PASSWORD = "zoeoqftysfycmscm"; // replace with your Gmail App Password (required if 2FA enabled)
 
 // === Transporter creation using Gmail SMTP ===
 const createTransporter = () => {
