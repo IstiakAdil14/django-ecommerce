@@ -6,6 +6,7 @@ Cloudinary for media & WhiteNoise for static
 
 from pathlib import Path
 import os
+from decouple import config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -17,9 +18,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "FYz9fYz2fMIFshtXUQ7wXTJ5QQU"
 DEBUG = True  # set True only locally
 
-ALLOWED_HOSTS = [
-    "*",  # allow all hosts — optional, replace when domain fixed
-]
+ALLOWED_HOSTS = ["*"]
+
+CSRF_TRUSTED_ORIGINS = ["https://*.vercel.app"]
 
 
 # -----------------------------------------------------------------------------------
@@ -98,55 +99,26 @@ else:
 
 # === CLOUDINARY for user-uploaded images ===
 import cloudinary
-from urllib.parse import urlparse
+import cloudinary.uploader
+import cloudinary.api
 
 # Configure Cloudinary using environment variables
-# Supports both CLOUDINARY_URL (single connection string) and individual vars
-CLOUDINARY_URL = os.environ.get("CLOUDINARY_URL=cloudinary://<826254745148537>:<FYz9fYz2fMIFshtXUQ7wXTJ5QQU>@dc6yqjtm9")
+CLOUDINARY_URL = config("CLOUDINARY_URL", default=None)
 
-# Parse and configure Cloudinary SDK (for migration scripts and direct usage)
 if CLOUDINARY_URL:
-    # Parse CLOUDINARY_URL: cloudinary://api_key:api_secret@cloud_name
-    try:
-        # Replace cloudinary:// with http:// for parsing
-        parsed_url = urlparse(CLOUDINARY_URL.replace("cloudinary://", "http://"))
-        cloud_name = parsed_url.hostname
-        api_key = parsed_url.username
-        api_secret = parsed_url.password
-        
-        if cloud_name and api_key and api_secret:
-            cloudinary.config(
-                cloud_name=cloud_name,
-                api_key=api_key,
-                api_secret=api_secret,
-            )
-    except Exception as e:
-        # Fallback: let cloudinary.config() try to read from env var directly
-        cloudinary.config()
-else:
-    # Otherwise, use individual environment variables
-    cloud_name = os.environ.get(" dc6yqjtm9")
-    api_key = os.environ.get("CLOUDINARY_API_KEY")
-    api_secret = os.environ.get("CLOUDINARY_API_SECRET")
-    if all([cloud_name, api_key, api_secret]):
-        cloudinary.config(
-            cloud_name=cloud_name,
-            api_key=api_key,
-            api_secret=api_secret,
-        )
+    # CLOUDINARY_URL is handled automatically by the library if set in env
+    # or we can manually set it if needed, but usually just having the env var is enough
+    # for the `cloudinary` library.
+    # However, django-cloudinary-storage uses its own config format.
+    pass
 
 # Configure django-cloudinary-storage
-# It will automatically read from CLOUDINARY_URL or individual env vars
 CLOUDINARY_STORAGE = {
-    "CLOUD_NAME": os.environ.get("dc6yqjtm9"),
-    "API_KEY": os.environ.get("826254745148537"),
-    "API_SECRET": os.environ.get("FYz9fYz2fMIFshtXUQ7wXTJ5QQU"),
+    "CLOUD_NAME": config("CLOUDINARY_CLOUD_NAME", default=""),
+    "API_KEY": config("CLOUDINARY_API_KEY", default=""),
+    "API_SECRET": config("CLOUDINARY_API_SECRET", default=""),
 }
 
-# Set a prefix/folder for uploaded files in Cloudinary
-CLOUDINARY_STORAGE["prefix"] = "django_ecommerce"
-
-# Use Cloudinary storage for media files
 DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
 # === STATIC FILES ===
@@ -154,12 +126,12 @@ STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "greatkart/static"]
 
+# Use WhiteNoise for static files in production
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-# === Media (Cloudinary handles the path) ===
-# CloudinaryStorage will return full URLs, but we keep MEDIA_URL for local dev fallback
+# === Media ===
 MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"  # Fallback for local dev and migration scripts
+MEDIA_ROOT = BASE_DIR / "media"
 
 
 # -----------------------------------------------------------------------------------
@@ -178,41 +150,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 
-STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR /'staticfiles'
-# STATICFILES_DIRS = [
-#     'greatkart/static',
-# ]
-
-# MinIO Configuration (Production only)
-USE_MINIO = config("USE_MINIO", default=False, cast=bool)
-
-if USE_MINIO:
-    MINIO_ENDPOINT = config("MINIO_ENDPOINT", default="localhost:9000")
-    MINIO_ACCESS_KEY = config("MINIO_ACCESS_KEY", default="minioadmin")
-    MINIO_SECRET_KEY = config("MINIO_SECRET_KEY", default="minioadmin")
-    MINIO_BUCKET_NAME = config("MINIO_BUCKET_NAME", default="greatkart-media")
-    MINIO_USE_HTTPS = config("MINIO_USE_HTTPS", default=False, cast=bool)
-
-    # Configure MinIO storage backend
-    STATIC_URL = f"{'https' if MINIO_USE_HTTPS else 'http'}://{MINIO_ENDPOINT}/{MINIO_BUCKET_NAME}/static/"
-    STATICFILES_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
-    DEFAULT_FILE_STORAGE = "greatkart.media_storages.MediaStorage"
-
-else:
-    # Local fallback for development
-    STATIC_URL = "/static/"
-    STATIC_ROOT = BASE_DIR / "static"
-    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-    DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
-
-STATICFILES_DIRS = [
-    "greatkart/static",
-]
-
-# media files configuration
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+# Removed duplicate static/media configuration block to avoid conflicts
 
 
 from django.contrib.messages import constants as messages

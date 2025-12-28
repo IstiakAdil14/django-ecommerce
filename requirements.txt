@@ -15,3 +15,6 @@ django-session-timeout==0.1.0
 gunicorn==21.2.0
 whitenoise==6.6.0
 cloudinary==1.36.0
+dj-database-url
+psycopg2-binary
+vercel-python-django
